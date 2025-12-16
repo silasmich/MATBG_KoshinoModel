@@ -2,7 +2,7 @@ import numpy as np
 from math import sqrt
 import matplotlib.pyplot as plt
 
-m, n = 32, 31
+m, n = 32, 31    # 1.05º (magic-angle)
 HOPPING_FILE = "eff_hopping_ver2.dat"
 
 # Read the hopping file (numeric table)
@@ -16,12 +16,12 @@ with open(HOPPING_FILE, 'r') as f:
 
 # Interpret columns as (m,n,ia,jb,Re,Im)
 arr = np.array(rows)
-m_vals = arr[:,0].astype(int)   # initial orbital
-n_vals = arr[:,1].astype(int)   # final orbital
-ia = arr[:,2].astype(int)
-jb = arr[:,3].astype(int)
+m_vals = arr[:,0].astype(int)    # lattice vector index
+n_vals = arr[:,1].astype(int)    # lattice vector index
+ia = arr[:,2].astype(int)        # initial orbital
+jb = arr[:,3].astype(int)        # final orbital
 re, im = arr[:,4], arr[:,5]
-tvals = re + 1j*im
+tvals = re + 1j*im               # ξ=+ hopping integrals
 
 # Aggregate hoppings into a dictionary keyed by (i,j,m,n)
 hops = {}
@@ -37,8 +37,8 @@ def graphene_reciprocal():
     a = sqrt(3.0)*1.42
     a1 = np.array([a, 0.0])
     a2 = np.array([a/2.0, a*sqrt(3.0)/2.0])
-    A = np.column_stack((a1, a2))
-    B = 2*np.pi*np.linalg.inv(A)
+    A = np.vstack((a1, a2))
+    B = 2*np.pi*np.linalg.inv(A.T)
     return B[0,:], B[1,:]
 
 # Twist angle. Given by doi:10.1103/PhysRevB.81.161405
@@ -61,9 +61,9 @@ def moire_vectors():
     b1, b2 = graphene_reciprocal()
     g1 = R(-theta/2) @ b1 - R(+theta/2) @ b1
     g2 = R(-theta/2) @ b2 - R(+theta/2) @ b2
-    G = np.column_stack((g1, g2))
-    S = 2*np.pi*np.linalg.inv(G)
-    return G.T, S, theta
+    G = np.vstack((g1, g2))
+    S = 2*np.pi*np.linalg.inv(G.T)
+    return G, S, theta
 
 G, S, theta = moire_vectors()
 print(f"Angle = {np.degrees(theta):.6f}°; (m,n)=({m},{n})")
@@ -71,16 +71,15 @@ print("Moiré reciprocal vectors (1/Å):\n", G)
 print("Moiré lattice vectors (Å):\n", S)
 
 # Wannier centers (2 per moiré cell)
-def site_positions():
+def centers():
     a = sqrt(3.0)*1.42
     Lm = a/(2*np.sin(theta/2))
     rBA = np.array([Lm/(2*np.sqrt(3)), Lm/2])
     rAB = np.array([-Lm/(2*np.sqrt(3)), Lm/2])
-    spots = np.vstack((rBA, rAB))
-    print("Wannier centers (2):\n", spots)
+    return np.vstack((rBA, rAB))
+print("Wannier centers (2):\n", centers())
 
-# High-symmetry points.
-# The negative sign is to match Koshino's description
+# High-symmetry points. Negative signs match Koshino's article
 g1 = G[:,0]; g2 = G[:,1]
 Gamma = np.array([0.0,0.0])
 K = -(2*g1 + g2)/3.0
@@ -89,13 +88,13 @@ M = -(g1 + g2)/2.0
 # Path in mBZ proportional to distances
 segpts = 150
 r_segpts = int(segpts/np.sqrt(3))
-seg1 = np.linspace(K, Gamma, 2*r_segpts, endpoint=False)
+seg1 = np.linspace(K, Gamma, r_segpts*2, endpoint=False)
 seg2 = np.linspace(Gamma, M, segpts, endpoint=False)
 seg3 = np.linspace(M, K, r_segpts+1)
 kpts = np.vstack((seg1, seg2, seg3))
 size_kpts = len(kpts)
 
-# Build Hamiltonian at k
+# Build ξ-valley Hamiltonian at k
 def H_of_k(kvec, valley):
     H = np.zeros((2,2), dtype=complex)
     if (valley==+1):
@@ -110,8 +109,8 @@ def H_of_k(kvec, valley):
             H[i,j] += np.conj(t) * phase
     return H
 
-# Compute the band structure in meV
-def bandstructure(valley):
+# Compute the ξ-valley band structure in meV
+def bandstr(valley):
     bands = np.zeros((size_kpts, 2))
     for ik,k in enumerate(kpts):
         Hk = H_of_k(k, valley)
@@ -125,7 +124,7 @@ def closest_index(pt):
     return int(np.argmin(d))
 
 # Print energies at high-symmetry points
-def print_E(bands):
+def E(bands):
     for name,pt in [('Gamma',Gamma),('K',K),('M',M)]:
         idx = closest_index(pt)
         print(f"{name} energies: {bands[idx]}")
@@ -150,8 +149,7 @@ def layout():
     plt.tight_layout()    
 
 def main():
-    site_positions()
-    bands_p, bands_m = bandstructure(+1), bandstructure(-1)
+    bands_p, bands_m = bandstr(+1), bandstr(-1)    # valleys ξ = ±
     k_path = np.arange(size_kpts)
     
     # Plot bands
@@ -164,9 +162,8 @@ def main():
     
     plt.savefig("Koshino_Bands", dpi=600)
     plt.show()
-
-    # print_E(bands_p)
-    # print_E(bands_m)
+    # E(bands_p)
+    # E(bands_m)
 
 if __name__ == "__main__":
     main()
