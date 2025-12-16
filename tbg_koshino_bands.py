@@ -77,22 +77,8 @@ def centers():
     rBA = np.array([Lm/(2*np.sqrt(3)), Lm/2])
     rAB = np.array([-Lm/(2*np.sqrt(3)), Lm/2])
     return np.vstack((rBA, rAB))
-print("Wannier centers (2):\n", centers())
-
-# High-symmetry points. Negative signs match Koshino's article
-g1 = G[:,0]; g2 = G[:,1]
-Gamma = np.array([0.0,0.0])
-K = -(2*g1 + g2)/3.0
-M = -(g1 + g2)/2.0
-
-# Path in mBZ proportional to distances
-segpts = 150
-r_segpts = int(segpts/np.sqrt(3))
-seg1 = np.linspace(K, Gamma, r_segpts*2, endpoint=False)
-seg2 = np.linspace(Gamma, M, segpts, endpoint=False)
-seg3 = np.linspace(M, K, r_segpts+1)
-kpts = np.vstack((seg1, seg2, seg3))
-size_kpts = len(kpts)
+WC = centers()
+print("Wannier centers (2):\n", WC)
 
 # Build ξ-valley Hamiltonian at k
 def H_of_k(kvec, valley):
@@ -108,6 +94,21 @@ def H_of_k(kvec, valley):
             phase = np.exp(1j * (kvec[0]*Rcart[0] + kvec[1]*Rcart[1]))
             H[i,j] += np.conj(t) * phase
     return H
+
+# High-symmetry points. Negative signs match Koshino's article
+g1 = G[:,0]; g2 = G[:,1]
+Gamma = np.array([0.0,0.0])
+K = -(2*g1 + g2)/3.0
+M = -(g1 + g2)/2.0
+
+# Path in mBZ proportional to distances
+segpts = 150
+r_segpts = int(segpts/np.sqrt(3))
+seg1 = np.linspace(K, Gamma, r_segpts*2, endpoint=False)
+seg2 = np.linspace(Gamma, M, segpts, endpoint=False)
+seg3 = np.linspace(M, K, r_segpts+1)
+kpts = np.vstack((seg1, seg2, seg3))
+size_kpts = len(kpts)
 
 # Compute the ξ-valley band structure in meV
 def bandstr(valley):
@@ -167,4 +168,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
