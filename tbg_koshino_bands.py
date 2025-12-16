@@ -108,11 +108,10 @@ seg1 = np.linspace(K, Gamma, r_segpts*2, endpoint=False)
 seg2 = np.linspace(Gamma, M, segpts, endpoint=False)
 seg3 = np.linspace(M, K, r_segpts+1)
 kpts = np.vstack((seg1, seg2, seg3))
-size_kpts = len(kpts)
 
 # Compute the ξ-valley band structure in meV
 def bandstr(valley):
-    bands = np.zeros((size_kpts, 2))
+    bands = np.zeros((len(kpts), 2))
     for ik,k in enumerate(kpts):
         Hk = H_of_k(k, valley)
         vals = np.linalg.eigvalsh(Hk)
@@ -151,10 +150,10 @@ def layout():
 
 def main():
     bands_p, bands_m = bandstr(+1), bandstr(-1)    # valleys ξ = ±
-    k_path = np.arange(size_kpts)
-    
+
     # Plot bands
     layout()
+    k_path = np.arange(len(kpts))
     plt.plot(k_path, bands_p[:,0], color='orangered', label=r'$\xi=+$')
     plt.plot(k_path, bands_p[:,1], color='orangered')
     plt.plot(k_path, bands_m[:,0], color='royalblue', label=r'$\xi=-$')
@@ -168,5 +167,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
