@@ -159,11 +159,12 @@ def main():
     plt.plot(k_path, bands_m[:,0], color='royalblue', label=r'$\xi=-$')
     plt.plot(k_path, bands_m[:,1], color='royalblue')
     plt.legend()
-    
-    plt.savefig("Koshino_Bands", dpi=600)
-    plt.show()
+
     # E(bands_p)
     # E(bands_m)
+    plt.savefig("Koshino_Bands", dpi=600)
+    plt.show()
 
 if __name__ == "__main__":
     main()
+
