@@ -135,25 +135,27 @@ def layout():
     plt.title(f"TBG effective bands (Koshino) for 1.05°")
     plt.ylabel("Energy (meV)")
     plt.ylim(top=4, bottom=-4.9)
+
     plt.margins(x=0)    # bands touch axes
+    plt.tick_params(axis='y', length=4.0)
         
     # Add labels for high-symmetry points
-    plt.xticks(ticks=[0, closest_index(Gamma), closest_index(M), size_kpts-1],
+    plt.xticks(ticks=[0, closest_index(Gamma), closest_index(M), len(kpts)-1],
                labels=[r'$\overline{K}$', r'$\overline{\Gamma}$', r'$\overline{M}$', r"$\overline{K}'$"], fontsize=12)
 
     # Add lines
     plt.axhline(y=0, color='black', ls='--', linewidth=0.8, alpha=1.0)
     plt.axvline(closest_index(Gamma), color='black', ls='-', linewidth=0.8, alpha=1.0)
     plt.axvline(closest_index(M), color='black', ls='-', linewidth=0.8, alpha=1.0)
-    plt.tick_params(length=0)
+    
     plt.tight_layout()    
 
 def main():
     bands_p, bands_m = bandstr(+1), bandstr(-1)    # valleys ξ = ±
+    k_path = np.arange(len(kpts))
 
     # Plot bands
     layout()
-    k_path = np.arange(len(kpts))
     plt.plot(k_path, bands_p[:,0], color='orangered', label=r'$\xi=+$')
     plt.plot(k_path, bands_p[:,1], color='orangered')
     plt.plot(k_path, bands_m[:,0], color='royalblue', label=r'$\xi=-$')
