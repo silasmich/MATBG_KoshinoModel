@@ -1,6 +1,6 @@
-# A reproduction of Koshino _et al_. (2018) MATBG model
+# Reproduction of Koshino _et al_. (2018) MATBG model
 
-Initially introduced introduced in an open acess [PRX article](doi.org/10.1103/PhysRevX.8.031087).
+Initially introduced in an open acess [PRX article](doi.org/10.1103/PhysRevX.8.031087).
 
 This is a tight-binding effective model that describes the MATBG low-energy band structure with hopping integrals $t\left( r_{ij} \right)$ between maximally localized Wannier orbitals. These orbitals have a three-peak form at AA spots and are centered at nonequivalent BA (orbital 1) and AB (orbital 2) spots in the emergent moiré pattern, which creates the alternating honeycomb lattice that is used to calculate the band structure.
 
